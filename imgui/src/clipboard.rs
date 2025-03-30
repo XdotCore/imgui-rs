@@ -102,6 +102,7 @@ pub(crate) unsafe extern "C" fn set_clipboard_text(
 
 /// # Clipboard
 #[allow(clippy::fn_address_comparisons)] // This is allowed because although function addresses wont be unique, we just care if its OURS
+#[allow(unpredictable_function_pointer_comparisons)]
 impl Ui {
     /// Returns the current clipboard contents as text, or None if the clipboard is empty or cannot
     /// be accessed
