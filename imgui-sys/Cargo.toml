@@ -33,10 +33,13 @@ cfg-if = "1"
 cc = "1.0.2"
 pkg-config = { version="0.3", optional=true }
 vcpkg = { version="0.2.15", optional=true }
+git2 = { version="0.20.1", optional=true }
 
 [features]
 default = []
 wasm = []
 docking = []
 freetype = ["pkg-config"]
+lunasvg = ["freetype"]
 use-vcpkg = ["vcpkg"]
+use-git = ["git2"]
