@@ -9,81 +9,59 @@ const DEFINES: &[(&str, Option<&str>)] = &[
     ("IMGUI_DISABLE_OSX_FUNCTIONS", None),
 ];
 
-#[cfg(feature = "use-git")]
-fn clone_repo_version(url: &str, out_dir: &str, ver: &str) {
-    if !std::path::Path::new(out_dir).exists() {
-        let repo = match git2::Repository::clone_recurse(url, out_dir) {
-            Ok(repo) => repo,
-            Err(err) => panic!("cannot find lunasvg: {}", err),
-        };
-        
-        let (object, reference) = repo.revparse_ext(ver).expect("Object not found");
-    
-        repo.checkout_tree(&object, None).expect("Failed to checkout");
-    
-        let _ = match reference {
-            Some(gref) => repo.set_head(gref.name().unwrap()),
-            None => repo.set_head_detached(object.id()),
-        };
-    }
-}
-
-#[cfg(all(feature = "freetype", feature = "use-git"))]
+#[cfg(all(feature = "freetype", feature = "use-submodules"))]
 fn build_freetype_from_git() -> Vec<impl AsRef<std::path::Path>> {
-    let out_dir = std::env::var("OUT_DIR").unwrap();
-    let out_dir = format!("{}/freetype", out_dir);
-    let include_dir = format!("{}/include", out_dir);
+    let src_dir = "third-party/freetype";
+    let include_dir = format!("{}/include", src_dir);
 
-    clone_repo_version("https://github.com/freetype/freetype", &out_dir, "VER-2-13-3");
-
-    println!("cargo:rerun-if-changed={}", out_dir);
+    println!("cargo:rerun-if-changed={}", src_dir);
 
     let c_files = [
-        &format!("{}/src/base/ftsystem.c", out_dir),
-        &format!("{}/src/base/ftinit.c", out_dir),
-        &format!("{}/src/base/ftdebug.c", out_dir),
-        &format!("{}/src/base/ftbase.c", out_dir),
-        &format!("{}/src/base/ftbbox.c", out_dir),
-        &format!("{}/src/base/ftglyph.c", out_dir),
-        &format!("{}/src/base/ftbdf.c", out_dir),
-        &format!("{}/src/base/ftbitmap.c", out_dir),
-        &format!("{}/src/base/ftcid.c", out_dir),
-        &format!("{}/src/base/ftfstype.c", out_dir),
-        &format!("{}/src/base/ftgasp.c", out_dir),
-        &format!("{}/src/base/ftgxval.c", out_dir),
-        &format!("{}/src/base/ftmm.c", out_dir),
-        &format!("{}/src/base/ftotval.c", out_dir),
-        &format!("{}/src/base/ftpatent.c", out_dir),
-        &format!("{}/src/base/ftpfr.c", out_dir),
-        &format!("{}/src/base/ftstroke.c", out_dir),
-        &format!("{}/src/base/ftsynth.c", out_dir),
-        &format!("{}/src/base/fttype1.c", out_dir),
-        &format!("{}/src/base/ftwinfnt.c", out_dir),
-        &format!("{}/src/base/ftmac.c", out_dir),
-        &format!("{}/src/bdf/bdf.c", out_dir),
-        &format!("{}/src/cff/cff.c", out_dir),
-        &format!("{}/src/cid/type1cid.c", out_dir),
-        &format!("{}/src/pcf/pcf.c", out_dir),
-        &format!("{}/src/pfr/pfr.c", out_dir),
-        &format!("{}/src/sfnt/sfnt.c", out_dir),
-        &format!("{}/src/truetype/truetype.c", out_dir),
-        &format!("{}/src/type1/type1.c", out_dir),
-        &format!("{}/src/type42/type42.c", out_dir),
-        &format!("{}/src/winfonts/winfnt.c", out_dir),
-        &format!("{}/src/smooth/smooth.c", out_dir),
-        &format!("{}/src/raster/raster.c", out_dir),
-        &format!("{}/src/sdf/sdf.c", out_dir),
-        &format!("{}/src/autofit/autofit.c", out_dir),
-        &format!("{}/src/cache/ftcache.c", out_dir),
-        &format!("{}/src/gzip/ftgzip.c", out_dir),
-        &format!("{}/src/lzw/ftlzw.c", out_dir),
-        &format!("{}/src/bzip2/ftbzip2.c", out_dir),
-        &format!("{}/src/gxvalid/gxvalid.c", out_dir),
-        &format!("{}/src/otvalid/otvalid.c", out_dir),
-        &format!("{}/src/psaux/psaux.c", out_dir),
-        &format!("{}/src/pshinter/pshinter.c", out_dir),
-        &format!("{}/src/psnames/psnames.c", out_dir),
-        &format!("{}/src/svg/ftsvg.c", out_dir),
+        &format!("{}/src/base/ftsystem.c", src_dir),
+        &format!("{}/src/base/ftinit.c", src_dir),
+        &format!("{}/src/base/ftdebug.c", src_dir),
+        &format!("{}/src/base/ftbase.c", src_dir),
+        &format!("{}/src/base/ftbbox.c", src_dir),
+        &format!("{}/src/base/ftglyph.c", src_dir),
+        &format!("{}/src/base/ftbdf.c", src_dir),
+        &format!("{}/src/base/ftbitmap.c", src_dir),
+        &format!("{}/src/base/ftcid.c", src_dir),
+        &format!("{}/src/base/ftfstype.c", src_dir),
+        &format!("{}/src/base/ftgasp.c", src_dir),
+        &format!("{}/src/base/ftgxval.c", src_dir),
+        &format!("{}/src/base/ftmm.c", src_dir),
+        &format!("{}/src/base/ftotval.c", src_dir),
+        &format!("{}/src/base/ftpatent.c", src_dir),
+        &format!("{}/src/base/ftpfr.c", src_dir),
+        &format!("{}/src/base/ftstroke.c", src_dir),
+        &format!("{}/src/base/ftsynth.c", src_dir),
+        &format!("{}/src/base/fttype1.c", src_dir),
+        &format!("{}/src/base/ftwinfnt.c", src_dir),
+        &format!("{}/src/base/ftmac.c", src_dir),
+        &format!("{}/src/bdf/bdf.c", src_dir),
+        &format!("{}/src/cff/cff.c", src_dir),
+        &format!("{}/src/cid/type1cid.c", src_dir),
+        &format!("{}/src/pcf/pcf.c", src_dir),
+        &format!("{}/src/pfr/pfr.c", src_dir),
+        &format!("{}/src/sfnt/sfnt.c", src_dir),
+        &format!("{}/src/truetype/truetype.c", src_dir),
+        &format!("{}/src/type1/type1.c", src_dir),
+        &format!("{}/src/type42/type42.c", src_dir),
+        &format!("{}/src/winfonts/winfnt.c", src_dir),
+        &format!("{}/src/smooth/smooth.c", src_dir),
+        &format!("{}/src/raster/raster.c", src_dir),
+        &format!("{}/src/sdf/sdf.c", src_dir),
+        &format!("{}/src/autofit/autofit.c", src_dir),
+        &format!("{}/src/cache/ftcache.c", src_dir),
+        &format!("{}/src/gzip/ftgzip.c", src_dir),
+        &format!("{}/src/lzw/ftlzw.c", src_dir),
+        &format!("{}/src/bzip2/ftbzip2.c", src_dir),
+        &format!("{}/src/gxvalid/gxvalid.c", src_dir),
+        &format!("{}/src/otvalid/otvalid.c", src_dir),
+        &format!("{}/src/psaux/psaux.c", src_dir),
+        &format!("{}/src/pshinter/pshinter.c", src_dir),
+        &format!("{}/src/psnames/psnames.c", src_dir),
+        &format!("{}/src/svg/ftsvg.c", src_dir),
     ];
 
     cc::Build::new()
@@ -95,38 +73,35 @@ fn build_freetype_from_git() -> Vec<impl AsRef<std::path::Path>> {
     vec![include_dir]
 }
 
-#[cfg(all(feature = "lunasvg", feature = "use-git"))]
+#[cfg(all(feature = "lunasvg", feature = "use-submodules"))]
 fn build_lunasvg_from_git() -> Vec<impl AsRef<std::path::Path>> {
-    let out_dir = std::env::var("OUT_DIR").unwrap();
-    let out_dir = format!("{}/lunasvg", out_dir);
-    let include_dir = format!("{}/include", out_dir);
-    let plutovg_out_dir = format!("{}/3rdparty/plutovg", out_dir);
+    let src_dir = "third-party/lunasvg";
+    let include_dir = format!("{}/include", src_dir);
+    let plutovg_out_dir = format!("{}/3rdparty/plutovg", src_dir);
 
-    clone_repo_version("https://github.com/sammycage/lunasvg", &out_dir, "v2.4.1");
-
-    println!("cargo:rerun-if-changed={}", out_dir);
+    println!("cargo:rerun-if-changed={}", src_dir);
 
     let lunasvg_source = [
-        &format!("{}/source/lunasvg.cpp", out_dir),
-        &format!("{}/source/element.cpp", out_dir),
-        &format!("{}/source/property.cpp", out_dir),
-        &format!("{}/source/parser.cpp", out_dir),
-        &format!("{}/source/layoutcontext.cpp", out_dir),
-        &format!("{}/source/canvas.cpp", out_dir),
-        &format!("{}/source/clippathelement.cpp", out_dir),
-        &format!("{}/source/defselement.cpp", out_dir),
-        &format!("{}/source/gelement.cpp", out_dir),
-        &format!("{}/source/geometryelement.cpp", out_dir),
-        &format!("{}/source/graphicselement.cpp", out_dir),
-        &format!("{}/source/maskelement.cpp", out_dir),
-        &format!("{}/source/markerelement.cpp", out_dir),
-        &format!("{}/source/paintelement.cpp", out_dir),
-        &format!("{}/source/stopelement.cpp", out_dir),
-        &format!("{}/source/styledelement.cpp", out_dir),
-        &format!("{}/source/styleelement.cpp", out_dir),
-        &format!("{}/source/svgelement.cpp", out_dir),
-        &format!("{}/source/symbolelement.cpp", out_dir),
-        &format!("{}/source/useelement.cpp", out_dir),
+        &format!("{}/source/lunasvg.cpp", src_dir),
+        &format!("{}/source/element.cpp", src_dir),
+        &format!("{}/source/property.cpp", src_dir),
+        &format!("{}/source/parser.cpp", src_dir),
+        &format!("{}/source/layoutcontext.cpp", src_dir),
+        &format!("{}/source/canvas.cpp", src_dir),
+        &format!("{}/source/clippathelement.cpp", src_dir),
+        &format!("{}/source/defselement.cpp", src_dir),
+        &format!("{}/source/gelement.cpp", src_dir),
+        &format!("{}/source/geometryelement.cpp", src_dir),
+        &format!("{}/source/graphicselement.cpp", src_dir),
+        &format!("{}/source/maskelement.cpp", src_dir),
+        &format!("{}/source/markerelement.cpp", src_dir),
+        &format!("{}/source/paintelement.cpp", src_dir),
+        &format!("{}/source/stopelement.cpp", src_dir),
+        &format!("{}/source/styledelement.cpp", src_dir),
+        &format!("{}/source/styleelement.cpp", src_dir),
+        &format!("{}/source/svgelement.cpp", src_dir),
+        &format!("{}/source/symbolelement.cpp", src_dir),
+        &format!("{}/source/useelement.cpp", src_dir),
     ];
 
     let plutovg_source = [
@@ -157,7 +132,7 @@ fn build_lunasvg_from_git() -> Vec<impl AsRef<std::path::Path>> {
 
 #[cfg(feature = "freetype")]
 fn find_freetype() -> Vec<impl AsRef<std::path::Path>> {
-    #[cfg(not(any(feature = "use-vcpkg", feature = "use-git")))]
+    #[cfg(not(any(feature = "use-vcpkg", feature = "use-submodules")))]
     match pkg_config::Config::new().find("freetype2") {
         Ok(freetype) => freetype.include_paths,
         Err(err) => panic!("cannot find freetype: {}", err),
@@ -167,23 +142,23 @@ fn find_freetype() -> Vec<impl AsRef<std::path::Path>> {
         Ok(freetype) => freetype.include_paths,
         Err(err) => panic!("cannot find freetype: {}", err),
     }
-    #[cfg(feature = "use-git")]
+    #[cfg(feature = "use-submodules")]
     build_freetype_from_git()
 }
 
 #[cfg(feature = "lunasvg")]
 fn find_lunasvg() -> Vec<impl AsRef<std::path::Path>> {
-    #[cfg(not(any(feature = "use-vcpkg", feature="use-git")))]
+    #[cfg(not(any(feature = "use-vcpkg", feature="use-submodules")))]
     match pkg_config::Config::new().find("lunasvg") {
         Ok(lunasvg) => lunasvg.include_paths,
         Err(err) => panic!("cannot find lunasvg: {}", err),
     }
     #[cfg(feature = "use-vcpkg")]
-    match vcpkg::find_package("freetype") {
+    match vcpkg::find_package("lunasvg") {
         Ok(freetype) => freetype.include_paths,
         Err(err) => panic!("cannot find lunasvg: {}", err),
     }
-    #[cfg(feature = "use-git")]
+    #[cfg(feature = "use-submodules")]
     build_lunasvg_from_git()
 }
 

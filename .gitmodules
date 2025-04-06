@@ -1,0 +1,6 @@
+[submodule "imgui-sys/third-party/lunasvg"]
+	path = imgui-sys/third-party/lunasvg
+	url = https://github.com/sammycage/lunasvg
+[submodule "imgui-sys/third-party/freetype"]
+	path = imgui-sys/third-party/freetype
+	url = https://github.com/freetype/freetype
