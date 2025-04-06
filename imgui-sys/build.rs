@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use std::path::{Path, PathBuf};
+use std::{ffi::OsStr, path::{Path, PathBuf}};
 
 const DEFINES: &[(&str, Option<&str>)] = &[
     // Rust `char` is a unicode scalar value, e.g. 32 bits.
@@ -11,7 +11,7 @@ const DEFINES: &[(&str, Option<&str>)] = &[
     ("IMGUI_DISABLE_OSX_FUNCTIONS", None),
 ];
 
-fn get_all_cpp(path: &str) -> impl Iterator<Item = PathBuf> {
+fn get_all_source_files(path: &str) -> impl Iterator<Item = PathBuf> {
     Path::new(path).read_dir().unwrap().filter_map(|f| {
         match f {
             Ok(f) => {
@@ -19,7 +19,7 @@ fn get_all_cpp(path: &str) -> impl Iterator<Item = PathBuf> {
                     Ok(ft) => ft,
                     Err(_) => return None,
                 };
-                if file_type.is_file() && f.path().extension().unwrap_or_default() == "cpp" {
+                if file_type.is_file() && ["c", "cpp"].map(|s| OsStr::new(s)).contains(&f.path().extension().unwrap_or_default()) {
                     Some(f.path())
                 } else {
                     None
@@ -32,58 +32,66 @@ fn get_all_cpp(path: &str) -> impl Iterator<Item = PathBuf> {
 
 #[cfg(all(feature = "freetype", feature = "use-submodules"))]
 fn build_freetype_from_submodule() -> Vec<impl AsRef<std::path::Path>> {
-    let src_dir = "third-party/freetype";
-    let include_dir = format!("{}/include", src_dir);
+    let freetype_dir = "third-party/freetype";
+    let src_dir = &format!("{}/src", freetype_dir);
+    let include_dir = format!("{}/include", freetype_dir);
 
-    println!("cargo:rerun-if-changed={}", src_dir);
+    println!("cargo:rerun-if-changed={}", freetype_dir);
 
-    let c_files = [
-        &format!("{}/src/base/ftsystem.c", src_dir),
-        &format!("{}/src/base/ftinit.c", src_dir),
-        &format!("{}/src/base/ftdebug.c", src_dir),
-        &format!("{}/src/base/ftbase.c", src_dir),
-        &format!("{}/src/base/ftbbox.c", src_dir),
-        &format!("{}/src/base/ftglyph.c", src_dir),
-        &format!("{}/src/base/ftbdf.c", src_dir),
-        &format!("{}/src/base/ftbitmap.c", src_dir),
-        &format!("{}/src/base/ftcid.c", src_dir),
-        &format!("{}/src/base/ftfstype.c", src_dir),
-        &format!("{}/src/base/ftgasp.c", src_dir),
-        &format!("{}/src/base/ftgxval.c", src_dir),
-        &format!("{}/src/base/ftmm.c", src_dir),
-        &format!("{}/src/base/ftotval.c", src_dir),
-        &format!("{}/src/base/ftpatent.c", src_dir),
-        &format!("{}/src/base/ftpfr.c", src_dir),
-        &format!("{}/src/base/ftstroke.c", src_dir),
-        &format!("{}/src/base/ftsynth.c", src_dir),
-        &format!("{}/src/base/fttype1.c", src_dir),
-        &format!("{}/src/base/ftwinfnt.c", src_dir),
-        &format!("{}/src/base/ftmac.c", src_dir),
-        &format!("{}/src/bdf/bdf.c", src_dir),
-        &format!("{}/src/cff/cff.c", src_dir),
-        &format!("{}/src/cid/type1cid.c", src_dir),
-        &format!("{}/src/pcf/pcf.c", src_dir),
-        &format!("{}/src/pfr/pfr.c", src_dir),
-        &format!("{}/src/sfnt/sfnt.c", src_dir),
-        &format!("{}/src/truetype/truetype.c", src_dir),
-        &format!("{}/src/type1/type1.c", src_dir),
-        &format!("{}/src/type42/type42.c", src_dir),
-        &format!("{}/src/winfonts/winfnt.c", src_dir),
-        &format!("{}/src/smooth/smooth.c", src_dir),
-        &format!("{}/src/raster/raster.c", src_dir),
-        &format!("{}/src/sdf/sdf.c", src_dir),
-        &format!("{}/src/autofit/autofit.c", src_dir),
-        &format!("{}/src/cache/ftcache.c", src_dir),
-        &format!("{}/src/gzip/ftgzip.c", src_dir),
-        &format!("{}/src/lzw/ftlzw.c", src_dir),
-        &format!("{}/src/bzip2/ftbzip2.c", src_dir),
-        &format!("{}/src/gxvalid/gxvalid.c", src_dir),
-        &format!("{}/src/otvalid/otvalid.c", src_dir),
-        &format!("{}/src/psaux/psaux.c", src_dir),
-        &format!("{}/src/pshinter/pshinter.c", src_dir),
-        &format!("{}/src/psnames/psnames.c", src_dir),
-        &format!("{}/src/svg/ftsvg.c", src_dir),
+    let mut c_files = vec![
+        format!("{}/autofit/autofit.c", src_dir),
+        format!("{}/base/ftbase.c", src_dir),
+        format!("{}/base/ftbbox.c", src_dir),
+        format!("{}/base/ftbdf.c", src_dir),
+        format!("{}/base/ftbitmap.c", src_dir),
+        format!("{}/base/ftcid.c", src_dir),
+        format!("{}/base/ftfstype.c", src_dir),
+        format!("{}/base/ftgasp.c", src_dir),
+        format!("{}/base/ftglyph.c", src_dir),
+        format!("{}/base/ftgxval.c", src_dir),
+        format!("{}/base/ftinit.c", src_dir),
+        format!("{}/base/ftmm.c", src_dir),
+        format!("{}/base/ftotval.c", src_dir),
+        format!("{}/base/ftpatent.c", src_dir),
+        format!("{}/base/ftpfr.c", src_dir),
+        format!("{}/base/ftstroke.c", src_dir),
+        format!("{}/base/ftsynth.c", src_dir),
+        format!("{}/base/fttype1.c", src_dir),
+        format!("{}/base/ftwinfnt.c", src_dir),
+        format!("{}/bdf/bdf.c", src_dir),
+        format!("{}/bzip2/ftbzip2.c", src_dir),
+        format!("{}/cache/ftcache.c", src_dir),
+        format!("{}/cff/cff.c", src_dir),
+        format!("{}/cid/type1cid.c", src_dir),
+        format!("{}/gzip/ftgzip.c", src_dir),
+        format!("{}/lzw/ftlzw.c", src_dir),
+        format!("{}/pcf/pcf.c", src_dir),
+        format!("{}/pfr/pfr.c", src_dir),
+        format!("{}/psaux/psaux.c", src_dir),
+        format!("{}/pshinter/pshinter.c", src_dir),
+        format!("{}/psnames/psnames.c", src_dir),
+        format!("{}/raster/raster.c", src_dir),
+        format!("{}/sdf/sdf.c", src_dir),
+        format!("{}/sfnt/sfnt.c", src_dir),
+        format!("{}/smooth/smooth.c", src_dir),
+        format!("{}/svg/svg.c", src_dir),
+        format!("{}/truetype/truetype.c", src_dir),
+        format!("{}/type1/type1.c", src_dir),
+        format!("{}/type42/type42.c", src_dir),
+        format!("{}/winfonts/winfnt.c", src_dir),
     ];
+    #[cfg(not(any(windows, unix)))] {
+        c_files.push(format!("{}/base/ftsystem.c", src_dir));
+        c_files.push(format!("{}/base/ftdebug.c", src_dir));
+    }
+    #[cfg(windows)] {
+        c_files.push(format!("{}/builds/windows/ftsystem.c", freetype_dir));
+        c_files.push(format!("{}/builds/windows/ftdebug.c", freetype_dir));
+    }
+    #[cfg(unix)] {
+        c_files.push(format!("{}/builds/unix/ftsystem.c", freetype_dir));
+        c_files.push(format!("{}/base/ftdebug.c", src_dir));
+    }
 
     cc::Build::new()
         .files(c_files)
@@ -104,8 +112,8 @@ fn build_lunasvg_from_submodule() -> Vec<impl AsRef<std::path::Path>> {
     println!("cargo:rerun-if-changed={}", src_dir);
     
     cc::Build::new()
-        .files(get_all_cpp(src_dir))
-        .files(get_all_cpp(plutovg_src_dir))
+        .files(get_all_source_files(src_dir))
+        .files(get_all_source_files(plutovg_src_dir))
         .include(&include_dir)
         .include(plutovg_src_dir)
         .cpp(true)
