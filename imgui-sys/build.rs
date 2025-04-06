@@ -1,5 +1,7 @@
 #![allow(dead_code)]
 
+use std::path::{Path, PathBuf};
+
 const DEFINES: &[(&str, Option<&str>)] = &[
     // Rust `char` is a unicode scalar value, e.g. 32 bits.
     ("IMGUI_USE_WCHAR32", None),
@@ -9,8 +11,27 @@ const DEFINES: &[(&str, Option<&str>)] = &[
     ("IMGUI_DISABLE_OSX_FUNCTIONS", None),
 ];
 
+fn get_all_cpp(path: &str) -> impl Iterator<Item = PathBuf> {
+    Path::new(path).read_dir().unwrap().filter_map(|f| {
+        match f {
+            Ok(f) => {
+                let file_type = match f.file_type() {
+                    Ok(ft) => ft,
+                    Err(_) => return None,
+                };
+                if file_type.is_file() && f.path().extension().unwrap_or_default() == "cpp" {
+                    Some(f.path())
+                } else {
+                    None
+                }
+            }
+            Err(_) => None,
+        }
+    })
+}
+
 #[cfg(all(feature = "freetype", feature = "use-submodules"))]
-fn build_freetype_from_git() -> Vec<impl AsRef<std::path::Path>> {
+fn build_freetype_from_submodule() -> Vec<impl AsRef<std::path::Path>> {
     let src_dir = "third-party/freetype";
     let include_dir = format!("{}/include", src_dir);
 
@@ -74,56 +95,22 @@ fn build_freetype_from_git() -> Vec<impl AsRef<std::path::Path>> {
 }
 
 #[cfg(all(feature = "lunasvg", feature = "use-submodules"))]
-fn build_lunasvg_from_git() -> Vec<impl AsRef<std::path::Path>> {
-    let src_dir = "third-party/lunasvg";
-    let include_dir = format!("{}/include", src_dir);
-    let plutovg_out_dir = format!("{}/3rdparty/plutovg", src_dir);
+fn build_lunasvg_from_submodule() -> Vec<impl AsRef<std::path::Path>> {
+    let lunasvg_dir = "third-party/lunasvg";
+    let src_dir = &format!("{}/source", lunasvg_dir);
+    let include_dir = format!("{}/include", lunasvg_dir);
+    let plutovg_src_dir = &format!("{}/3rdparty/plutovg", lunasvg_dir);
 
     println!("cargo:rerun-if-changed={}", src_dir);
-
-    let lunasvg_source = [
-        &format!("{}/source/lunasvg.cpp", src_dir),
-        &format!("{}/source/element.cpp", src_dir),
-        &format!("{}/source/property.cpp", src_dir),
-        &format!("{}/source/parser.cpp", src_dir),
-        &format!("{}/source/layoutcontext.cpp", src_dir),
-        &format!("{}/source/canvas.cpp", src_dir),
-        &format!("{}/source/clippathelement.cpp", src_dir),
-        &format!("{}/source/defselement.cpp", src_dir),
-        &format!("{}/source/gelement.cpp", src_dir),
-        &format!("{}/source/geometryelement.cpp", src_dir),
-        &format!("{}/source/graphicselement.cpp", src_dir),
-        &format!("{}/source/maskelement.cpp", src_dir),
-        &format!("{}/source/markerelement.cpp", src_dir),
-        &format!("{}/source/paintelement.cpp", src_dir),
-        &format!("{}/source/stopelement.cpp", src_dir),
-        &format!("{}/source/styledelement.cpp", src_dir),
-        &format!("{}/source/styleelement.cpp", src_dir),
-        &format!("{}/source/svgelement.cpp", src_dir),
-        &format!("{}/source/symbolelement.cpp", src_dir),
-        &format!("{}/source/useelement.cpp", src_dir),
-    ];
-
-    let plutovg_source = [
-        &format!("{}/plutovg.c", plutovg_out_dir),
-        &format!("{}/plutovg-paint.c", plutovg_out_dir),
-        &format!("{}/plutovg-geometry.c", plutovg_out_dir),
-        &format!("{}/plutovg-blend.c", plutovg_out_dir),
-        &format!("{}/plutovg-rle.c", plutovg_out_dir),
-        &format!("{}/plutovg-dash.c", plutovg_out_dir),
-        &format!("{}/plutovg-ft-raster.c", plutovg_out_dir),
-        &format!("{}/plutovg-ft-stroker.c", plutovg_out_dir),
-        &format!("{}/plutovg-ft-math.c", plutovg_out_dir),
-    ];
-
+    
     cc::Build::new()
-        .files(lunasvg_source)
-        .files(plutovg_source)
+        .files(get_all_cpp(src_dir))
+        .files(get_all_cpp(plutovg_src_dir))
         .include(&include_dir)
-        .include(&plutovg_out_dir)
+        .include(plutovg_src_dir)
         .cpp(true)
-        .flag_if_supported("-std:c++17")
-        .flag_if_supported("-std=c++17")
+        .flag_if_supported("-std:c++11")
+        .flag_if_supported("-std=c++11")
         .define("LUNASVG_BUILD_STATIC", None)
         .compile("lunasvg");
 
@@ -143,7 +130,7 @@ fn find_freetype() -> Vec<impl AsRef<std::path::Path>> {
         Err(err) => panic!("cannot find freetype: {}", err),
     }
     #[cfg(feature = "use-submodules")]
-    build_freetype_from_git()
+    build_freetype_from_submodule()
 }
 
 #[cfg(feature = "lunasvg")]
@@ -159,7 +146,7 @@ fn find_lunasvg() -> Vec<impl AsRef<std::path::Path>> {
         Err(err) => panic!("cannot find lunasvg: {}", err),
     }
     #[cfg(feature = "use-submodules")]
-    build_lunasvg_from_git()
+    build_lunasvg_from_submodule()
 }
 
 // Output define args for compiler
