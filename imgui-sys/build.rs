@@ -80,19 +80,26 @@ fn build_freetype_from_submodule() -> Vec<impl AsRef<std::path::Path>> {
         format!("{}/type42/type42.c", src_dir),
         format!("{}/winfonts/winfnt.c", src_dir),
     ];
+    let mut matched_family = true;
     match std::env::var("CARGO_CFG_TARGET_FAMILY") {
-        Some("windows") => {
-            c_files.push(format!("{}/builds/windows/ftsystem.c", freetype_dir));
-            c_files.push(format!("{}/builds/windows/ftdebug.c", freetype_dir));
+        Ok(family) => {
+            if family.contains("windows") {
+                c_files.push(format!("{}/builds/windows/ftsystem.c", freetype_dir));
+                c_files.push(format!("{}/builds/windows/ftdebug.c", freetype_dir));
+            }
+            else if family.contains("unix") {
+                c_files.push(format!("{}/builds/unix/ftsystem.c", freetype_dir));
+                c_files.push(format!("{}/base/ftdebug.c", src_dir));
+            }
+            else {
+                matched_family = false;
+            }
         }
-        Some("unix") => {
-            c_files.push(format!("{}/builds/unix/ftsystem.c", freetype_dir));
-            c_files.push(format!("{}/base/ftdebug.c", src_dir));
-        }
-        _ => {
-            c_files.push(format!("{}/base/ftsystem.c", src_dir));
-            c_files.push(format!("{}/base/ftdebug.c", src_dir));
-        }
+        _ => matched_family = false
+    }
+    if !matched_family {
+        c_files.push(format!("{}/base/ftsystem.c", src_dir));
+        c_files.push(format!("{}/base/ftdebug.c", src_dir));
     }
 
     cc::Build::new()
@@ -121,6 +128,7 @@ fn build_lunasvg_from_submodule() -> Vec<impl AsRef<std::path::Path>> {
         .cpp(true)
         .flag_if_supported("-std:c++11")
         .flag_if_supported("-std=c++11")
+        .flag_if_supported("-fpermissive") // needed to compile plutovg outside of msvc
         .define("LUNASVG_BUILD_STATIC", None)
         .compile("lunasvg");
 
