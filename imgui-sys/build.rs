@@ -80,17 +80,19 @@ fn build_freetype_from_submodule() -> Vec<impl AsRef<std::path::Path>> {
         format!("{}/type42/type42.c", src_dir),
         format!("{}/winfonts/winfnt.c", src_dir),
     ];
-    #[cfg(not(any(windows, unix)))] {
-        c_files.push(format!("{}/base/ftsystem.c", src_dir));
-        c_files.push(format!("{}/base/ftdebug.c", src_dir));
-    }
-    #[cfg(windows)] {
-        c_files.push(format!("{}/builds/windows/ftsystem.c", freetype_dir));
-        c_files.push(format!("{}/builds/windows/ftdebug.c", freetype_dir));
-    }
-    #[cfg(unix)] {
-        c_files.push(format!("{}/builds/unix/ftsystem.c", freetype_dir));
-        c_files.push(format!("{}/base/ftdebug.c", src_dir));
+    match std::env::var("CARGO_CFG_TARGET_FAMILY") {
+        Some("windows") => {
+            c_files.push(format!("{}/builds/windows/ftsystem.c", freetype_dir));
+            c_files.push(format!("{}/builds/windows/ftdebug.c", freetype_dir));
+        }
+        Some("unix") => {
+            c_files.push(format!("{}/builds/unix/ftsystem.c", freetype_dir));
+            c_files.push(format!("{}/base/ftdebug.c", src_dir));
+        }
+        _ => {
+            c_files.push(format!("{}/base/ftsystem.c", src_dir));
+            c_files.push(format!("{}/base/ftdebug.c", src_dir));
+        }
     }
 
     cc::Build::new()
