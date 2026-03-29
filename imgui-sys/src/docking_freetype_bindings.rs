@@ -106,7 +106,7 @@ pub struct __sFILEX {
     _unused: [u8; 0],
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, Hash)]
 pub struct __sFILE {
     pub _p: *mut core::ffi::c_uchar,
     pub _r: core::ffi::c_int,
@@ -1517,7 +1517,7 @@ impl Default for ImGuiSelectionRequest {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, Hash)]
 pub struct ImGuiSelectionBasicStorage {
     pub Size: core::ffi::c_int,
     pub PreserveOrder: bool,
@@ -1541,7 +1541,7 @@ impl Default for ImGuiSelectionBasicStorage {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, Hash)]
 pub struct ImGuiSelectionExternalStorage {
     pub UserData: *mut core::ffi::c_void,
     pub AdapterSetItemSelected: ::core::option::Option<
@@ -1565,7 +1565,7 @@ pub type ImDrawCallback = ::core::option::Option<
     unsafe extern "C" fn(parent_list: *const ImDrawList, cmd: *const ImDrawCmd),
 >;
 #[repr(C)]
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone)]
 pub struct ImDrawCmd {
     pub ClipRect: ImVec4,
     pub TextureId: ImTextureID,
@@ -2224,7 +2224,7 @@ impl Default for ImVector_ImGuiViewportPtr {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, Hash)]
 pub struct ImGuiPlatformIO {
     pub Platform_GetClipboardTextFn: ::core::option::Option<
         unsafe extern "C" fn(ctx: *mut ImGuiContext) -> *const core::ffi::c_char,
@@ -2752,7 +2752,7 @@ pub const ImGuiNextWindowDataFlags_HasDock: ImGuiNextWindowDataFlags_ = 2048;
 pub const ImGuiNextWindowDataFlags_HasWindowClass: ImGuiNextWindowDataFlags_ = 4096;
 pub type ImGuiNextWindowDataFlags_ = core::ffi::c_uint;
 #[repr(C)]
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone)]
 pub struct ImGuiNextWindowData {
     pub Flags: ImGuiNextWindowDataFlags,
     pub PosCond: ImGuiCond,
@@ -3384,20 +3384,18 @@ impl Default for ImGuiBoxSelectState {
 impl ImGuiBoxSelectState {
     #[inline]
     pub fn KeyMods(&self) -> ImGuiKeyChord {
-        unsafe { ::core::mem::transmute(self._bitfield_1.get(0usize, 16u8) as u32) }
+        (self._bitfield_1.get(0usize, 16u8) as u32).cast_signed()
     }
     #[inline]
     pub fn set_KeyMods(&mut self, val: ImGuiKeyChord) {
-        unsafe {
-            let val: u32 = ::core::mem::transmute(val);
-            self._bitfield_1.set(0usize, 16u8, val as u64)
-        }
+        let val: u32 = val.cast_unsigned();
+        self._bitfield_1.set(0usize, 16u8, val as u64)
     }
     #[inline]
     pub fn new_bitfield_1(KeyMods: ImGuiKeyChord) -> __BindgenBitfieldUnit<[u8; 2usize]> {
         let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 2usize]> = Default::default();
         __bindgen_bitfield_unit.set(0usize, 16u8, {
-            let KeyMods: u32 = unsafe { ::core::mem::transmute(KeyMods) };
+            let KeyMods: u32 = KeyMods.cast_unsigned();
             KeyMods as u64
         });
         __bindgen_bitfield_unit
@@ -3544,36 +3542,30 @@ impl Default for ImGuiDockNode {
 impl ImGuiDockNode {
     #[inline]
     pub fn AuthorityForPos(&self) -> ImGuiDataAuthority {
-        unsafe { ::core::mem::transmute(self._bitfield_1.get(0usize, 3u8) as u32) }
+        (self._bitfield_1.get(0usize, 3u8) as u32).cast_signed()
     }
     #[inline]
     pub fn set_AuthorityForPos(&mut self, val: ImGuiDataAuthority) {
-        unsafe {
-            let val: u32 = ::core::mem::transmute(val);
-            self._bitfield_1.set(0usize, 3u8, val as u64)
-        }
+        let val: u32 = val.cast_unsigned();
+        self._bitfield_1.set(0usize, 3u8, val as u64)
     }
     #[inline]
     pub fn AuthorityForSize(&self) -> ImGuiDataAuthority {
-        unsafe { ::core::mem::transmute(self._bitfield_1.get(3usize, 3u8) as u32) }
+        (self._bitfield_1.get(3usize, 3u8) as u32).cast_signed()
     }
     #[inline]
     pub fn set_AuthorityForSize(&mut self, val: ImGuiDataAuthority) {
-        unsafe {
-            let val: u32 = ::core::mem::transmute(val);
-            self._bitfield_1.set(3usize, 3u8, val as u64)
-        }
+        let val: u32 = val.cast_unsigned();
+        self._bitfield_1.set(3usize, 3u8, val as u64)
     }
     #[inline]
     pub fn AuthorityForViewport(&self) -> ImGuiDataAuthority {
-        unsafe { ::core::mem::transmute(self._bitfield_1.get(6usize, 3u8) as u32) }
+        (self._bitfield_1.get(6usize, 3u8) as u32).cast_signed()
     }
     #[inline]
     pub fn set_AuthorityForViewport(&mut self, val: ImGuiDataAuthority) {
-        unsafe {
-            let val: u32 = ::core::mem::transmute(val);
-            self._bitfield_1.set(6usize, 3u8, val as u64)
-        }
+        let val: u32 = val.cast_unsigned();
+        self._bitfield_1.set(6usize, 3u8, val as u64)
     }
     #[inline]
     pub fn IsVisible(&self) -> bool {
@@ -3581,10 +3573,8 @@ impl ImGuiDockNode {
     }
     #[inline]
     pub fn set_IsVisible(&mut self, val: bool) {
-        unsafe {
-            let val: u8 = ::core::mem::transmute(val);
-            self._bitfield_1.set(9usize, 1u8, val as u64)
-        }
+        let val: u8 = val.into();
+        self._bitfield_1.set(9usize, 1u8, val as u64)
     }
     #[inline]
     pub fn IsFocused(&self) -> bool {
@@ -3592,10 +3582,8 @@ impl ImGuiDockNode {
     }
     #[inline]
     pub fn set_IsFocused(&mut self, val: bool) {
-        unsafe {
-            let val: u8 = ::core::mem::transmute(val);
-            self._bitfield_1.set(10usize, 1u8, val as u64)
-        }
+        let val: u8 = val.into();
+        self._bitfield_1.set(10usize, 1u8, val as u64)
     }
     #[inline]
     pub fn IsBgDrawnThisFrame(&self) -> bool {
@@ -3603,10 +3591,8 @@ impl ImGuiDockNode {
     }
     #[inline]
     pub fn set_IsBgDrawnThisFrame(&mut self, val: bool) {
-        unsafe {
-            let val: u8 = ::core::mem::transmute(val);
-            self._bitfield_1.set(11usize, 1u8, val as u64)
-        }
+        let val: u8 = val.into();
+        self._bitfield_1.set(11usize, 1u8, val as u64)
     }
     #[inline]
     pub fn HasCloseButton(&self) -> bool {
@@ -3614,10 +3600,8 @@ impl ImGuiDockNode {
     }
     #[inline]
     pub fn set_HasCloseButton(&mut self, val: bool) {
-        unsafe {
-            let val: u8 = ::core::mem::transmute(val);
-            self._bitfield_1.set(12usize, 1u8, val as u64)
-        }
+        let val: u8 = val.into();
+        self._bitfield_1.set(12usize, 1u8, val as u64)
     }
     #[inline]
     pub fn HasWindowMenuButton(&self) -> bool {
@@ -3625,10 +3609,8 @@ impl ImGuiDockNode {
     }
     #[inline]
     pub fn set_HasWindowMenuButton(&mut self, val: bool) {
-        unsafe {
-            let val: u8 = ::core::mem::transmute(val);
+        let val: u8 = val.into();
             self._bitfield_1.set(13usize, 1u8, val as u64)
-        }
     }
     #[inline]
     pub fn HasCentralNodeChild(&self) -> bool {
@@ -3636,10 +3618,8 @@ impl ImGuiDockNode {
     }
     #[inline]
     pub fn set_HasCentralNodeChild(&mut self, val: bool) {
-        unsafe {
-            let val: u8 = ::core::mem::transmute(val);
-            self._bitfield_1.set(14usize, 1u8, val as u64)
-        }
+        let val: u8 = val.into();
+        self._bitfield_1.set(14usize, 1u8, val as u64)
     }
     #[inline]
     pub fn WantCloseAll(&self) -> bool {
@@ -3647,10 +3627,8 @@ impl ImGuiDockNode {
     }
     #[inline]
     pub fn set_WantCloseAll(&mut self, val: bool) {
-        unsafe {
-            let val: u8 = ::core::mem::transmute(val);
-            self._bitfield_1.set(15usize, 1u8, val as u64)
-        }
+        let val: u8 = val.into();
+        self._bitfield_1.set(15usize, 1u8, val as u64)
     }
     #[inline]
     pub fn WantLockSizeOnce(&self) -> bool {
@@ -3658,10 +3636,8 @@ impl ImGuiDockNode {
     }
     #[inline]
     pub fn set_WantLockSizeOnce(&mut self, val: bool) {
-        unsafe {
-            let val: u8 = ::core::mem::transmute(val);
-            self._bitfield_1.set(16usize, 1u8, val as u64)
-        }
+        let val: u8 = val.into();
+        self._bitfield_1.set(16usize, 1u8, val as u64)
     }
     #[inline]
     pub fn WantMouseMove(&self) -> bool {
@@ -3669,10 +3645,8 @@ impl ImGuiDockNode {
     }
     #[inline]
     pub fn set_WantMouseMove(&mut self, val: bool) {
-        unsafe {
-            let val: u8 = ::core::mem::transmute(val);
-            self._bitfield_1.set(17usize, 1u8, val as u64)
-        }
+        let val: u8 = val.into();
+        self._bitfield_1.set(17usize, 1u8, val as u64)
     }
     #[inline]
     pub fn WantHiddenTabBarUpdate(&self) -> bool {
@@ -3680,10 +3654,8 @@ impl ImGuiDockNode {
     }
     #[inline]
     pub fn set_WantHiddenTabBarUpdate(&mut self, val: bool) {
-        unsafe {
-            let val: u8 = ::core::mem::transmute(val);
-            self._bitfield_1.set(18usize, 1u8, val as u64)
-        }
+        let val: u8 = val.into();
+        self._bitfield_1.set(18usize, 1u8, val as u64)
     }
     #[inline]
     pub fn WantHiddenTabBarToggle(&self) -> bool {
@@ -3691,10 +3663,8 @@ impl ImGuiDockNode {
     }
     #[inline]
     pub fn set_WantHiddenTabBarToggle(&mut self, val: bool) {
-        unsafe {
-            let val: u8 = ::core::mem::transmute(val);
-            self._bitfield_1.set(19usize, 1u8, val as u64)
-        }
+        let val: u8 = val.into();
+        self._bitfield_1.set(19usize, 1u8, val as u64)
     }
     #[inline]
     pub fn new_bitfield_1(
@@ -3715,61 +3685,61 @@ impl ImGuiDockNode {
     ) -> __BindgenBitfieldUnit<[u8; 3usize]> {
         let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 3usize]> = Default::default();
         __bindgen_bitfield_unit.set(0usize, 3u8, {
-            let AuthorityForPos: u32 = unsafe { ::core::mem::transmute(AuthorityForPos) };
+            let AuthorityForPos: u32 = AuthorityForPos.cast_unsigned();
             AuthorityForPos as u64
         });
         __bindgen_bitfield_unit.set(3usize, 3u8, {
-            let AuthorityForSize: u32 = unsafe { ::core::mem::transmute(AuthorityForSize) };
+            let AuthorityForSize: u32 = AuthorityForSize.cast_unsigned();
             AuthorityForSize as u64
         });
         __bindgen_bitfield_unit.set(6usize, 3u8, {
-            let AuthorityForViewport: u32 = unsafe { ::core::mem::transmute(AuthorityForViewport) };
+            let AuthorityForViewport: u32 = AuthorityForViewport.cast_unsigned();
             AuthorityForViewport as u64
         });
         __bindgen_bitfield_unit.set(9usize, 1u8, {
-            let IsVisible: u8 = unsafe { ::core::mem::transmute(IsVisible) };
+            let IsVisible: u8 = IsVisible.into();
             IsVisible as u64
         });
         __bindgen_bitfield_unit.set(10usize, 1u8, {
-            let IsFocused: u8 = unsafe { ::core::mem::transmute(IsFocused) };
+            let IsFocused: u8 = IsFocused.into();
             IsFocused as u64
         });
         __bindgen_bitfield_unit.set(11usize, 1u8, {
-            let IsBgDrawnThisFrame: u8 = unsafe { ::core::mem::transmute(IsBgDrawnThisFrame) };
+            let IsBgDrawnThisFrame: u8 = IsBgDrawnThisFrame.into();
             IsBgDrawnThisFrame as u64
         });
         __bindgen_bitfield_unit.set(12usize, 1u8, {
-            let HasCloseButton: u8 = unsafe { ::core::mem::transmute(HasCloseButton) };
+            let HasCloseButton: u8 = HasCloseButton.into();
             HasCloseButton as u64
         });
         __bindgen_bitfield_unit.set(13usize, 1u8, {
-            let HasWindowMenuButton: u8 = unsafe { ::core::mem::transmute(HasWindowMenuButton) };
+            let HasWindowMenuButton: u8 = HasWindowMenuButton.into();
             HasWindowMenuButton as u64
         });
         __bindgen_bitfield_unit.set(14usize, 1u8, {
-            let HasCentralNodeChild: u8 = unsafe { ::core::mem::transmute(HasCentralNodeChild) };
+            let HasCentralNodeChild: u8 = HasCentralNodeChild.into();
             HasCentralNodeChild as u64
         });
         __bindgen_bitfield_unit.set(15usize, 1u8, {
-            let WantCloseAll: u8 = unsafe { ::core::mem::transmute(WantCloseAll) };
+            let WantCloseAll: u8 = WantCloseAll.into();
             WantCloseAll as u64
         });
         __bindgen_bitfield_unit.set(16usize, 1u8, {
-            let WantLockSizeOnce: u8 = unsafe { ::core::mem::transmute(WantLockSizeOnce) };
+            let WantLockSizeOnce: u8 = WantLockSizeOnce.into();
             WantLockSizeOnce as u64
         });
         __bindgen_bitfield_unit.set(17usize, 1u8, {
-            let WantMouseMove: u8 = unsafe { ::core::mem::transmute(WantMouseMove) };
+            let WantMouseMove: u8 = WantMouseMove.into();
             WantMouseMove as u64
         });
         __bindgen_bitfield_unit.set(18usize, 1u8, {
             let WantHiddenTabBarUpdate: u8 =
-                unsafe { ::core::mem::transmute(WantHiddenTabBarUpdate) };
+                WantHiddenTabBarUpdate.into();
             WantHiddenTabBarUpdate as u64
         });
         __bindgen_bitfield_unit.set(19usize, 1u8, {
             let WantHiddenTabBarToggle: u8 =
-                unsafe { ::core::mem::transmute(WantHiddenTabBarToggle) };
+                WantHiddenTabBarToggle.into();
             WantHiddenTabBarToggle as u64
         });
         __bindgen_bitfield_unit
@@ -3892,7 +3862,7 @@ pub struct ImGuiWindowSettings {
     pub WantDelete: bool,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, Hash)]
 pub struct ImGuiSettingsHandler {
     pub TypeName: *const core::ffi::c_char,
     pub TypeHash: ImGuiID,
@@ -4046,20 +4016,18 @@ impl Default for ImGuiStackLevelInfo {
 impl ImGuiStackLevelInfo {
     #[inline]
     pub fn DataType(&self) -> ImGuiDataType {
-        unsafe { ::core::mem::transmute(self._bitfield_1.get(0usize, 8u8) as u32) }
+        (self._bitfield_1.get(0usize, 8u8) as u32).cast_signed()
     }
     #[inline]
     pub fn set_DataType(&mut self, val: ImGuiDataType) {
-        unsafe {
-            let val: u32 = ::core::mem::transmute(val);
-            self._bitfield_1.set(0usize, 8u8, val as u64)
-        }
+        let val: u32 = val.cast_unsigned();
+        self._bitfield_1.set(0usize, 8u8, val as u64)
     }
     #[inline]
     pub fn new_bitfield_1(DataType: ImGuiDataType) -> __BindgenBitfieldUnit<[u8; 1usize]> {
         let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 1usize]> = Default::default();
         __bindgen_bitfield_unit.set(0usize, 8u8, {
-            let DataType: u32 = unsafe { ::core::mem::transmute(DataType) };
+            let DataType: u32 = DataType.cast_unsigned();
             DataType as u64
         });
         __bindgen_bitfield_unit
@@ -4113,7 +4081,7 @@ pub const ImGuiContextHookType_Shutdown: ImGuiContextHookType = 6;
 pub const ImGuiContextHookType_PendingRemoval_: ImGuiContextHookType = 7;
 pub type ImGuiContextHookType = core::ffi::c_uint;
 #[repr(C)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, Hash)]
 pub struct ImGuiContextHook {
     pub HookId: ImGuiID,
     pub Type: ImGuiContextHookType,
@@ -4562,7 +4530,7 @@ impl Default for ImVector_ImGuiContextHook {
     }
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone)]
 pub struct ImGuiContext {
     pub Initialized: bool,
     pub FontAtlasOwnedByContext: bool,
@@ -4897,14 +4865,12 @@ impl Default for ImGuiContext {
 impl ImGuiContext {
     #[inline]
     pub fn ActiveIdMouseButton(&self) -> core::ffi::c_int {
-        unsafe { ::core::mem::transmute(self._bitfield_1.get(0usize, 8u8) as u32) }
+        (self._bitfield_1.get(0usize, 8u8) as u32).cast_signed()
     }
     #[inline]
     pub fn set_ActiveIdMouseButton(&mut self, val: core::ffi::c_int) {
-        unsafe {
-            let val: u32 = ::core::mem::transmute(val);
-            self._bitfield_1.set(0usize, 8u8, val as u64)
-        }
+        let val: u32 = val.cast_unsigned();
+        self._bitfield_1.set(0usize, 8u8, val as u64)
     }
     #[inline]
     pub fn new_bitfield_1(
@@ -4912,7 +4878,7 @@ impl ImGuiContext {
     ) -> __BindgenBitfieldUnit<[u8; 1usize]> {
         let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 1usize]> = Default::default();
         __bindgen_bitfield_unit.set(0usize, 8u8, {
-            let ActiveIdMouseButton: u32 = unsafe { ::core::mem::transmute(ActiveIdMouseButton) };
+            let ActiveIdMouseButton: u32 = ActiveIdMouseButton.cast_unsigned();
             ActiveIdMouseButton as u64
         });
         __bindgen_bitfield_unit
@@ -5120,47 +5086,39 @@ impl Default for ImGuiWindow {
 impl ImGuiWindow {
     #[inline]
     pub fn SetWindowPosAllowFlags(&self) -> ImGuiCond {
-        unsafe { ::core::mem::transmute(self._bitfield_1.get(0usize, 8u8) as u32) }
+        (self._bitfield_1.get(0usize, 8u8) as u32).cast_signed()
     }
     #[inline]
     pub fn set_SetWindowPosAllowFlags(&mut self, val: ImGuiCond) {
-        unsafe {
-            let val: u32 = ::core::mem::transmute(val);
-            self._bitfield_1.set(0usize, 8u8, val as u64)
-        }
+        let val: u32 = val.cast_unsigned();
+        self._bitfield_1.set(0usize, 8u8, val as u64)
     }
     #[inline]
     pub fn SetWindowSizeAllowFlags(&self) -> ImGuiCond {
-        unsafe { ::core::mem::transmute(self._bitfield_1.get(8usize, 8u8) as u32) }
+        (self._bitfield_1.get(8usize, 8u8) as u32).cast_signed()
     }
     #[inline]
     pub fn set_SetWindowSizeAllowFlags(&mut self, val: ImGuiCond) {
-        unsafe {
-            let val: u32 = ::core::mem::transmute(val);
-            self._bitfield_1.set(8usize, 8u8, val as u64)
-        }
+        let val: u32 = val.cast_unsigned();
+        self._bitfield_1.set(8usize, 8u8, val as u64)
     }
     #[inline]
     pub fn SetWindowCollapsedAllowFlags(&self) -> ImGuiCond {
-        unsafe { ::core::mem::transmute(self._bitfield_1.get(16usize, 8u8) as u32) }
+        (self._bitfield_1.get(16usize, 8u8) as u32).cast_signed()
     }
     #[inline]
     pub fn set_SetWindowCollapsedAllowFlags(&mut self, val: ImGuiCond) {
-        unsafe {
-            let val: u32 = ::core::mem::transmute(val);
-            self._bitfield_1.set(16usize, 8u8, val as u64)
-        }
+        let val: u32 = val.cast_unsigned();
+        self._bitfield_1.set(16usize, 8u8, val as u64)
     }
     #[inline]
     pub fn SetWindowDockAllowFlags(&self) -> ImGuiCond {
-        unsafe { ::core::mem::transmute(self._bitfield_1.get(24usize, 8u8) as u32) }
+        (self._bitfield_1.get(24usize, 8u8) as u32).cast_signed()
     }
     #[inline]
     pub fn set_SetWindowDockAllowFlags(&mut self, val: ImGuiCond) {
-        unsafe {
-            let val: u32 = ::core::mem::transmute(val);
-            self._bitfield_1.set(24usize, 8u8, val as u64)
-        }
+        let val: u32 = val.cast_unsigned();
+        self._bitfield_1.set(24usize, 8u8, val as u64)
     }
     #[inline]
     pub fn new_bitfield_1(
@@ -5172,22 +5130,22 @@ impl ImGuiWindow {
         let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 4usize]> = Default::default();
         __bindgen_bitfield_unit.set(0usize, 8u8, {
             let SetWindowPosAllowFlags: u32 =
-                unsafe { ::core::mem::transmute(SetWindowPosAllowFlags) };
+                SetWindowPosAllowFlags.cast_unsigned();
             SetWindowPosAllowFlags as u64
         });
         __bindgen_bitfield_unit.set(8usize, 8u8, {
             let SetWindowSizeAllowFlags: u32 =
-                unsafe { ::core::mem::transmute(SetWindowSizeAllowFlags) };
+                SetWindowSizeAllowFlags.cast_unsigned();
             SetWindowSizeAllowFlags as u64
         });
         __bindgen_bitfield_unit.set(16usize, 8u8, {
             let SetWindowCollapsedAllowFlags: u32 =
-                unsafe { ::core::mem::transmute(SetWindowCollapsedAllowFlags) };
+                SetWindowCollapsedAllowFlags.cast_unsigned();
             SetWindowCollapsedAllowFlags as u64
         });
         __bindgen_bitfield_unit.set(24usize, 8u8, {
             let SetWindowDockAllowFlags: u32 =
-                unsafe { ::core::mem::transmute(SetWindowDockAllowFlags) };
+                SetWindowDockAllowFlags.cast_unsigned();
             SetWindowDockAllowFlags as u64
         });
         __bindgen_bitfield_unit
@@ -5198,10 +5156,8 @@ impl ImGuiWindow {
     }
     #[inline]
     pub fn set_DockIsActive(&mut self, val: bool) {
-        unsafe {
-            let val: u8 = ::core::mem::transmute(val);
-            self._bitfield_2.set(0usize, 1u8, val as u64)
-        }
+        let val: u8 = val.into();
+        self._bitfield_2.set(0usize, 1u8, val as u64)
     }
     #[inline]
     pub fn DockNodeIsVisible(&self) -> bool {
@@ -5209,10 +5165,8 @@ impl ImGuiWindow {
     }
     #[inline]
     pub fn set_DockNodeIsVisible(&mut self, val: bool) {
-        unsafe {
-            let val: u8 = ::core::mem::transmute(val);
-            self._bitfield_2.set(1usize, 1u8, val as u64)
-        }
+        let val: u8 = val.into();
+        self._bitfield_2.set(1usize, 1u8, val as u64)
     }
     #[inline]
     pub fn DockTabIsVisible(&self) -> bool {
@@ -5220,10 +5174,8 @@ impl ImGuiWindow {
     }
     #[inline]
     pub fn set_DockTabIsVisible(&mut self, val: bool) {
-        unsafe {
-            let val: u8 = ::core::mem::transmute(val);
-            self._bitfield_2.set(2usize, 1u8, val as u64)
-        }
+        let val: u8 = val.into();
+        self._bitfield_2.set(2usize, 1u8, val as u64)
     }
     #[inline]
     pub fn DockTabWantClose(&self) -> bool {
@@ -5231,10 +5183,8 @@ impl ImGuiWindow {
     }
     #[inline]
     pub fn set_DockTabWantClose(&mut self, val: bool) {
-        unsafe {
-            let val: u8 = ::core::mem::transmute(val);
-            self._bitfield_2.set(3usize, 1u8, val as u64)
-        }
+        let val: u8 = val.into();
+        self._bitfield_2.set(3usize, 1u8, val as u64)
     }
     #[inline]
     pub fn new_bitfield_2(
@@ -5245,19 +5195,19 @@ impl ImGuiWindow {
     ) -> __BindgenBitfieldUnit<[u8; 1usize]> {
         let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 1usize]> = Default::default();
         __bindgen_bitfield_unit.set(0usize, 1u8, {
-            let DockIsActive: u8 = unsafe { ::core::mem::transmute(DockIsActive) };
+            let DockIsActive: u8 = DockIsActive.into();
             DockIsActive as u64
         });
         __bindgen_bitfield_unit.set(1usize, 1u8, {
-            let DockNodeIsVisible: u8 = unsafe { ::core::mem::transmute(DockNodeIsVisible) };
+            let DockNodeIsVisible: u8 = DockNodeIsVisible.into();
             DockNodeIsVisible as u64
         });
         __bindgen_bitfield_unit.set(2usize, 1u8, {
-            let DockTabIsVisible: u8 = unsafe { ::core::mem::transmute(DockTabIsVisible) };
+            let DockTabIsVisible: u8 = DockTabIsVisible.into();
             DockTabIsVisible as u64
         });
         __bindgen_bitfield_unit.set(3usize, 1u8, {
-            let DockTabWantClose: u8 = unsafe { ::core::mem::transmute(DockTabWantClose) };
+            let DockTabWantClose: u8 = DockTabWantClose.into();
             DockTabWantClose as u64
         });
         __bindgen_bitfield_unit
@@ -5695,25 +5645,21 @@ impl Default for ImGuiTable {
 impl ImGuiTable {
     #[inline]
     pub fn RowFlags(&self) -> ImGuiTableRowFlags {
-        unsafe { ::core::mem::transmute(self._bitfield_1.get(0usize, 16u8) as u32) }
+        (self._bitfield_1.get(0usize, 16u8) as u32).cast_signed()
     }
     #[inline]
     pub fn set_RowFlags(&mut self, val: ImGuiTableRowFlags) {
-        unsafe {
-            let val: u32 = ::core::mem::transmute(val);
-            self._bitfield_1.set(0usize, 16u8, val as u64)
-        }
+        let val: u32 = val.cast_unsigned();
+        self._bitfield_1.set(0usize, 16u8, val as u64)
     }
     #[inline]
     pub fn LastRowFlags(&self) -> ImGuiTableRowFlags {
-        unsafe { ::core::mem::transmute(self._bitfield_1.get(16usize, 16u8) as u32) }
+        (self._bitfield_1.get(16usize, 16u8) as u32).cast_signed()
     }
     #[inline]
     pub fn set_LastRowFlags(&mut self, val: ImGuiTableRowFlags) {
-        unsafe {
-            let val: u32 = ::core::mem::transmute(val);
-            self._bitfield_1.set(16usize, 16u8, val as u64)
-        }
+        let val: u32 = val.cast_unsigned();
+        self._bitfield_1.set(16usize, 16u8, val as u64)
     }
     #[inline]
     pub fn new_bitfield_1(
@@ -5722,11 +5668,11 @@ impl ImGuiTable {
     ) -> __BindgenBitfieldUnit<[u8; 4usize]> {
         let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 4usize]> = Default::default();
         __bindgen_bitfield_unit.set(0usize, 16u8, {
-            let RowFlags: u32 = unsafe { ::core::mem::transmute(RowFlags) };
+            let RowFlags: u32 = RowFlags.cast_unsigned();
             RowFlags as u64
         });
         __bindgen_bitfield_unit.set(16usize, 16u8, {
-            let LastRowFlags: u32 = unsafe { ::core::mem::transmute(LastRowFlags) };
+            let LastRowFlags: u32 = LastRowFlags.cast_unsigned();
             LastRowFlags as u64
         });
         __bindgen_bitfield_unit
@@ -5854,7 +5800,7 @@ pub struct ImGuiTableSettings {
     pub WantApply: bool,
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone, Hash)]
 pub struct ImFontBuilderIO {
     pub FontBuilder_Build:
         ::core::option::Option<unsafe extern "C" fn(atlas: *mut ImFontAtlas) -> bool>,
